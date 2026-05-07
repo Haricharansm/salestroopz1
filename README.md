@@ -1,6 +1,6 @@
-# Campaign Analytics Dashboard
+# AI SDR
 
-This is a desktop-first application that helps manage campaign analytics, automated email sequencing, and calendar integration.
+What is Salestroopz? Salestroopz Desktop is an autonomous Sales Development Representative (SDR) agent that runs 100% locally on your machine. It uses a local LLM via Ollama to research prospects, craft personalised outreach campaigns, and send emails — all without your data ever touching a third-party server. Key principles:
 
 ## Installation and Setup
 
