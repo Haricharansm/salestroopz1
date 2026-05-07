@@ -1,56 +1,67 @@
-# AI SDR
+# Salestroopz Desktop
 
-What is Salestroopz? Salestroopz Desktop is an autonomous Sales Development Representative (SDR) agent that runs 100% locally on your machine. It uses a local LLM via Ollama to research prospects, craft personalised outreach campaigns, and send emails — all without your data ever touching a third-party server. Key principles:
+**The Privacy-First, Autonomous SDR Agent**
 
-## Installation and Setup
+Salestroopz Desktop is a world-class, autonomous Sales Development Representative (SDR) agent designed for power users who demand total control over their sales process. By operating **100% locally** on your machine, Salestroopz empowers you to research prospects, craft personalized outreach, and automate email sequences without your sensitive data ever touching a third-party server.
+
+## Core Principles
+
+- **Privacy-First:** Your data is 100% yours. No cloud processing, no data snooping, no exceptions.
+- **Autonomous Intelligence:** From prospect research to automated follow-ups, Salestroopz streamlines the entire sales lifecycle.
+- **Open-Source Freedom:** Built by developers, for developers. Extendable, transparent, and completely free to use.
+
+---
+
+## Installation & Setup
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (Version 18 or higher recommended)
-- [npm](https://www.npmjs.com/) 
+- [Node.js](https://nodejs.org/) (Version 18+ recommended)
+- [npm](https://www.npmjs.com/)
 
-### Setup
+### Getting Started
 
-1. **Clone the repository.**
+1. **Clone the repository:**
+   ```bash
+   git clone [your-repo-url]
+   cd salestroopz
+   ```
 2. **Install dependencies:**
    ```bash
    npm install
    ```
+3. **Run Locally:**
+   ```bash
+   npm run dev
+   ```
 
-### Running Locally
+### Building & Packaging
 
-To run the application in development mode:
-
-```bash
-npm run dev
-```
-
-### Building and Packaging
-
-To package the application for your operating system:
+To generate a standalone executable for your environment:
 
 1. **Build the frontend:**
    ```bash
    npm run build
    ```
-2. **Build and package the Electron app:**
+2. **Package the agent:**
    ```bash
    npm run electron:build
    ```
+The polished, production-ready executable will be available in the `release/` directory.
 
-The packaged executable will be available in the `release/` directory.
+---
 
-## Configuration
+## Advanced Integrations
 
-The application stores settings locally in an SQLite database (`app.db`).
-When running the app, navigate to the **Settings** page to connect your accounts:
+Salestroopz natively integrates with your favorite tools to maximize efficiency:
 
-- **AI Provider:** Choose between Gemini (Cloud) or a local OpenSource model (via Ollama or similar local API).
-- **Email Integration:** Configure your Gmail/Outlook/SMTP credentials.
-- **Calendar Integration:** Connect your Google or Outlook calendar for automated scheduling.
+- **AI Providers:** Run LLMs via cloud (Gemini) or natively via local APIs (Ollama).
+- **Email:** Full support for Gmail, Outlook, and custom SMTP configurations.
+- **Calendar:** Seamless automated scheduling with Google or Outlook.
+- **Prospecting:** Direct integration with LinkedIn for outreach and Apollo.io for enrichment.
 
-## Features
+---
 
-- **Campaign Analytics:** Visual dashboards for engagement and intent tracking.
-- **Autonomous Sequencing Engine:** Automatically handles email follow-ups based on predefined cadences.
-- **Secure Local Storage:** Data is stored locally on your machine for enhanced privacy.
+## License
+
+Salestroopz is released under the **MIT License**. You are free to use, modify, and distribute this software for any purpose, commercial or private. See the [LICENSE](LICENSE) file for more details.
