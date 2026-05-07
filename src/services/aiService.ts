@@ -84,20 +84,22 @@ export async function generateCadence(prospectName: string, prospectCompany: str
     }));
 }
 
-export async function identifyICP(productDescription: string, usp: string): Promise<string> {
+export async function identifyICP(productDescription: string, usp: string, negativeAttributes: string): Promise<string> {
     const prompt = `
         Product: ${productDescription}
         USP: ${usp}
-        Identify the ideal customer profile (ICP) for this offering.
+        Exclude: ${negativeAttributes}
+        Identify the ideal customer profile (ICP) for this offering, considering exclusionary criteria.
     `;
     return (await callAI(prompt)) || "Could not identify ICP.";
 }
 
-export async function filterProspects(icp: string, prospects: any[]): Promise<any[]> {
+export async function filterProspects(icp: string, negativeAttributes: string, prospects: any[]): Promise<any[]> {
     const prompt = `
         ICP: ${icp}
+        Exclude: ${negativeAttributes}
         Prospects: ${JSON.stringify(prospects)}
-        Return a JSON array of the IDs of the prospects that match this ICP.
+        Return a JSON array of the IDs of the prospects that match this ICP while respecting exclusions.
         Format: ["id1", "id2"]
     `;
     const responseText = await callAI(prompt, true);

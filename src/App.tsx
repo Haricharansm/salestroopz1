@@ -22,6 +22,7 @@ export default function App() {
   const [onboarding, setOnboarding] = useState(true);
   const [product, setProduct] = useState('');
   const [usp, setUsp] = useState('');
+  const [negativeAttributes, setNegativeAttributes] = useState('');
   const [icp, setIcp] = useState('');
 
   // Reply simulation state
@@ -60,9 +61,9 @@ export default function App() {
   const handleOnboarding = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const identifiedIcp = await identifyICP(product, usp);
+    const identifiedIcp = await identifyICP(product, usp, negativeAttributes);
     setIcp(identifiedIcp);
-    const matched = await filterProspects(identifiedIcp, prospects);
+    const matched = await filterProspects(identifiedIcp, negativeAttributes, prospects);
     setProspects(matched);
     setLoading(false);
     setOnboarding(false);
@@ -152,6 +153,7 @@ export default function App() {
               <form onSubmit={handleOnboarding} className="max-w-xl w-full bg-[#0D0D0F] p-6 rounded-2xl border border-white/5 space-y-4">
                   <textarea name="product" placeholder="Product/Service Description" onChange={e => setProduct(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" rows={3} required />
                   <textarea name="usp" placeholder="Unique Value Proposition (USP)" onChange={e => setUsp(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" rows={3} required />
+                  <textarea name="negative" placeholder="Exclusionary Criteria (Negative Attributes)" onChange={e => setNegativeAttributes(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" rows={3} />
                   <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 p-2.5 rounded-lg">{loading ? 'Analyzing...' : 'Identify ICP & Filter Contacts'}</button>
               </form>
           </div>
