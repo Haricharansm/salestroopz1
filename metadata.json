@@ -1,0 +1,6 @@
+{
+  "name": "AI SDR Assistant",
+  "description": "An AI-powered Sales Development Representative tool that helps craft personalized sales outreach content using Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
