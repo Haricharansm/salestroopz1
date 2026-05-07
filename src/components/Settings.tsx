@@ -11,6 +11,7 @@ export const Settings = () => {
   const [emailPassword, setEmailPassword] = useState('');
   const [calendarProvider, setCalendarProvider] = useState('google');
   const [calendarApiKey, setCalendarApiKey] = useState('');
+  const [apolloApiKey, setApolloApiKey] = useState('');
 
   useEffect(() => {
     window.electron.getSettings().then((settings) => {
@@ -23,6 +24,7 @@ export const Settings = () => {
         setEmailPassword(settings.EMAIL_PASSWORD || '');
         setCalendarProvider(settings.CALENDAR_PROVIDER || 'google');
         setCalendarApiKey(settings.CALENDAR_API_KEY || '');
+        setApolloApiKey(settings.APOLLO_API_KEY || '');
     });
   }, []);
 
@@ -36,7 +38,8 @@ export const Settings = () => {
         EMAIL_USER: emailUser,
         EMAIL_PASSWORD: emailPassword,
         CALENDAR_PROVIDER: calendarProvider,
-        CALENDAR_API_KEY: calendarApiKey
+        CALENDAR_API_KEY: calendarApiKey,
+        APOLLO_API_KEY: apolloApiKey
     });
     alert('Settings saved to database!');
   };
@@ -103,6 +106,10 @@ export const Settings = () => {
             <option value="outlook">Outlook Calendar</option>
           </select>
           <input type="password" placeholder="API Key/Credentials" value={calendarApiKey} onChange={(e) => setCalendarApiKey(e.target.value)} className="w-full text-black p-2 rounded" />
+        </div>
+        <div className="border-t border-slate-700 pt-4">
+          <h3 className="text-sm font-semibold mb-2">Apollo.io Integration</h3>
+          <input type="password" placeholder="Apollo API Key" value={apolloApiKey} onChange={(e) => setApolloApiKey(e.target.value)} className="w-full text-black p-2 rounded" />
         </div>
         <button
           onClick={saveSettings}

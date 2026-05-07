@@ -51,6 +51,7 @@ declare global {
         getSettings: () => Promise<any>;
         saveCampaigns: (campaigns: any) => Promise<void>;
         getCampaigns: () => Promise<any>;
+        openAuthWindow: (url: string) => Promise<string>;
     };
   }
 }

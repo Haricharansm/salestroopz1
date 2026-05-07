@@ -61,7 +61,28 @@ ipcMain.handle('get-campaigns', () => {
     return row ? JSON.parse(row.value as string) : [];
 });
 
+ipcMain.handle('open-auth-window', (_, url) => {
+    const authWindow = new BrowserWindow({ width: 800, height: 600 });
+    authWindow.loadURL(url);
+    
+    authWindow.webContents.on('will-redirect', (event, url) => {
+        if (url.includes('code=')) {
+            const urlObj = new URL(url);
+            const code = urlObj.searchParams.get('code');
+            ipcMain.emit('auth-code', code);
+            authWindow.close();
+        }
+    });
+
+    return new Promise((resolve) => {
+        ipcMain.once('auth-code', (_, code) => {
+            resolve(code);
+        });
+    });
+});
+
 function createWindow() {
+
   const win = new BrowserWindow({
     width: 1200,
     height: 800,

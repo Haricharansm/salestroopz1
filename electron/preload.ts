@@ -5,4 +5,5 @@ contextBridge.exposeInMainWorld('electron', {
   getSettings: () => ipcRenderer.invoke('get-settings'),
   saveCampaigns: (campaigns: any) => ipcRenderer.invoke('save-campaigns', campaigns),
   getCampaigns: () => ipcRenderer.invoke('get-campaigns'),
+  openAuthWindow: (url: string) => ipcRenderer.invoke('open-auth-window', url),
 });
