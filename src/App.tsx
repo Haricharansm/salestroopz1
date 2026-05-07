@@ -1,9 +1,10 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { generateSdrContent, generateCadence, identifyICP, filterProspects, analyzeReply } from './services/aiService';
 import { Loader2, Copy, Send, Calendar, Plus, Trash2, Edit, MessageSquare, Settings as SettingsIcon } from 'lucide-react';
 import { Campaign, EmailStep, Prospect } from './types';
 import { Settings } from './components/Settings';
 import { CampaignAnalytics } from './components/CampaignAnalytics';
+import { ChatOnboarding } from './components/ChatOnboarding';
 
 export default function App() {
   const [prospectName, setProspectName] = useState('');
@@ -15,14 +16,10 @@ export default function App() {
   const [prospects, setProspects] = useState<Prospect[]>([]);
   const [editingProspect, setEditingProspect] = useState<Prospect | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-
   const [error, setError] = useState<string | null>(null);
 
   // Onboarding states
   const [onboarding, setOnboarding] = useState(true);
-  const [product, setProduct] = useState('');
-  const [usp, setUsp] = useState('');
-  const [negativeAttributes, setNegativeAttributes] = useState('');
   const [icp, setIcp] = useState('');
 
   // Reply simulation state
@@ -58,12 +55,11 @@ export default function App() {
       setLoading(false);
   };
 
-  const handleOnboarding = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleChatOnboarding = async (data: { product: string; usp: string; negativeAttributes: string }) => {
     setLoading(true);
-    const identifiedIcp = await identifyICP(product, usp, negativeAttributes);
+    const identifiedIcp = await identifyICP(data.product, data.usp, data.negativeAttributes);
     setIcp(identifiedIcp);
-    const matched = await filterProspects(identifiedIcp, negativeAttributes, prospects);
+    const matched = await filterProspects(identifiedIcp, data.negativeAttributes, prospects);
     setProspects(matched);
     setLoading(false);
     setOnboarding(false);
@@ -148,14 +144,9 @@ export default function App() {
 
   if (onboarding) {
       return (
-          <div className="min-h-screen bg-[#050506] p-6 flex flex-col items-center text-white">
+          <div className="min-h-screen bg-[#050506] p-6 flex flex-col justify-center items-center text-white">
               <h1 className="text-3xl font-bold mb-8">Onboarding: Define Offer</h1>
-              <form onSubmit={handleOnboarding} className="max-w-xl w-full bg-[#0D0D0F] p-6 rounded-2xl border border-white/5 space-y-4">
-                  <textarea name="product" placeholder="Product/Service Description" onChange={e => setProduct(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" rows={3} required />
-                  <textarea name="usp" placeholder="Unique Value Proposition (USP)" onChange={e => setUsp(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" rows={3} required />
-                  <textarea name="negative" placeholder="Exclusionary Criteria (Negative Attributes)" onChange={e => setNegativeAttributes(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" rows={3} />
-                  <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 p-2.5 rounded-lg">{loading ? 'Analyzing...' : 'Identify ICP & Filter Contacts'}</button>
-              </form>
+              <ChatOnboarding onComplete={handleChatOnboarding} />
           </div>
       )
   }

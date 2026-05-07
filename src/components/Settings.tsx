@@ -14,33 +14,37 @@ export const Settings = () => {
   const [apolloApiKey, setApolloApiKey] = useState('');
 
   useEffect(() => {
-    window.electron.getSettings().then((settings) => {
-        setLinkedinClientId(settings.LINKEDIN_CLIENT_ID || '');
-        setLinkedinClientSecret(settings.LINKEDIN_CLIENT_SECRET || '');
-        setAiProvider(settings.AI_PROVIDER || 'gemini');
-        setLocalApiUrl(settings.LOCAL_API_URL || 'http://localhost:11434/v1');
-        setEmailProvider(settings.EMAIL_PROVIDER || 'gmail');
-        setEmailUser(settings.EMAIL_USER || '');
-        setEmailPassword(settings.EMAIL_PASSWORD || '');
-        setCalendarProvider(settings.CALENDAR_PROVIDER || 'google');
-        setCalendarApiKey(settings.CALENDAR_API_KEY || '');
-        setApolloApiKey(settings.APOLLO_API_KEY || '');
-    });
+    if (window.electron) {
+        window.electron.getSettings().then((settings) => {
+            setLinkedinClientId(settings.LINKEDIN_CLIENT_ID || '');
+            setLinkedinClientSecret(settings.LINKEDIN_CLIENT_SECRET || '');
+            setAiProvider(settings.AI_PROVIDER || 'gemini');
+            setLocalApiUrl(settings.LOCAL_API_URL || 'http://localhost:11434/v1');
+            setEmailProvider(settings.EMAIL_PROVIDER || 'gmail');
+            setEmailUser(settings.EMAIL_USER || '');
+            setEmailPassword(settings.EMAIL_PASSWORD || '');
+            setCalendarProvider(settings.CALENDAR_PROVIDER || 'google');
+            setCalendarApiKey(settings.CALENDAR_API_KEY || '');
+            setApolloApiKey(settings.APOLLO_API_KEY || '');
+        });
+    }
   }, []);
 
   const saveSettings = () => {
-    window.electron.saveSettings({
-        LINKEDIN_CLIENT_ID: linkedinClientId,
-        LINKEDIN_CLIENT_SECRET: linkedinClientSecret,
-        AI_PROVIDER: aiProvider,
-        LOCAL_API_URL: localApiUrl,
-        EMAIL_PROVIDER: emailProvider,
-        EMAIL_USER: emailUser,
-        EMAIL_PASSWORD: emailPassword,
-        CALENDAR_PROVIDER: calendarProvider,
-        CALENDAR_API_KEY: calendarApiKey,
-        APOLLO_API_KEY: apolloApiKey
-    });
+    if (window.electron) {
+        window.electron.saveSettings({
+            LINKEDIN_CLIENT_ID: linkedinClientId,
+            LINKEDIN_CLIENT_SECRET: linkedinClientSecret,
+            AI_PROVIDER: aiProvider,
+            LOCAL_API_URL: localApiUrl,
+            EMAIL_PROVIDER: emailProvider,
+            EMAIL_USER: emailUser,
+            EMAIL_PASSWORD: emailPassword,
+            CALENDAR_PROVIDER: calendarProvider,
+            CALENDAR_API_KEY: calendarApiKey,
+            APOLLO_API_KEY: apolloApiKey
+        });
+    }
     alert('Settings saved to database!');
   };
 
