@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { generateSdrContent, generateCadence, identifyICP, filterProspects, analyzeReply } from './services/aiService';
+import * as linkedinService from './services/linkedinService';
+import * as apolloService from './services/apolloService';
 import { Loader2, Copy, Send, Calendar, Plus, Trash2, Edit, MessageSquare, Settings as SettingsIcon } from 'lucide-react';
 import { Campaign, EmailStep, Prospect } from './types';
 import { Settings } from './components/Settings';
@@ -9,6 +11,7 @@ import { ChatOnboarding } from './components/ChatOnboarding';
 export default function App() {
   const [prospectName, setProspectName] = useState('');
   const [prospectCompany, setProspectCompany] = useState('');
+  const [selectedProspectId, setSelectedProspectId] = useState('');
   const [goal, setGoal] = useState('');
   const [generatedEmail, setGeneratedEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,6 +20,9 @@ export default function App() {
   const [editingProspect, setEditingProspect] = useState<Prospect | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkedinSearchQuery, setLinkedinSearchQuery] = useState('');
+  const [apolloSearchQuery, setApolloSearchQuery] = useState('');
+  const [apolloApiKey, setApolloApiKey] = useState('');
 
   // Onboarding states
   const [onboarding, setOnboarding] = useState(true);
@@ -28,6 +34,12 @@ export default function App() {
   useEffect(() => {
     const saved = localStorage.getItem('sdr_prospects');
     if (saved) setProspects(JSON.parse(saved));
+    
+    if (window.electron) {
+        window.electron.getSettings().then((settings) => {
+            setApolloApiKey(settings.APOLLO_API_KEY || '');
+        });
+    }
   }, []);
 
   useEffect(() => {
@@ -53,6 +65,49 @@ export default function App() {
       
       setReplyInput({...replyInput, [prospectId]: ''});
       setLoading(false);
+  };
+
+  const handleLinkedInSearch = async () => {
+    if (!linkedinSearchQuery) return;
+    setLoading(true);
+    // Real implementation would retrieve valid token from storage
+    const results = await linkedinService.searchProspects(linkedinSearchQuery, "dummy_token"); 
+    
+    // Map LinkedIn prospects to our Prospect type
+    const newProspects: Prospect[] = results.map(p => ({
+        id: p.id,
+        name: p.name,
+        company: p.company,
+        role: p.role,
+        status: 'new'
+    }));
+
+    setProspects([...prospects, ...newProspects]);
+    setLoading(false);
+  };
+
+  const handleApolloSearch = async () => {
+    if (!apolloSearchQuery) return;
+    if (!apolloApiKey) {
+        setError('Apollo API Key is required. Please set it in Settings.');
+        return;
+    }
+    setLoading(true);
+    setError(null);
+    const results = await apolloService.searchApolloProspects(apolloSearchQuery, apolloApiKey);
+    
+    // Map Apollo prospects to our Prospect type
+    const newProspects: Prospect[] = results.map(p => ({
+        id: p.id,
+        name: p.name,
+        company: p.company,
+        role: p.title,
+        status: 'new'
+    }));
+
+    // Prioritize Apollo results (or just add them)
+    setProspects([...newProspects, ...prospects]);
+    setLoading(false);
   };
 
   const handleChatOnboarding = async (data: { product: string; usp: string; negativeAttributes: string }) => {
@@ -123,12 +178,13 @@ export default function App() {
   };
 
   const handleGenerateCadence = async () => {
+      if (!selectedProspectId) return;
       setLoading(true);
       try {
           const steps = await generateCadence(prospectName, prospectCompany, goal, 3);
           const newCampaign: Campaign = {
               id: Date.now().toString(),
-              prospectId: '1',
+              prospectId: selectedProspectId,
               name: `${prospectName} Cadence`,
               steps: steps,
               currentStepIndex: 0,
@@ -169,6 +225,28 @@ export default function App() {
         <section className="bg-[#0D0D0F] p-6 rounded-2xl shadow-xl border border-white/5 space-y-4">
             <h2 className="text-xl font-semibold text-white">Contacts</h2>
             {error && <p className="text-red-500 text-sm bg-red-900/20 p-2 rounded">{error}</p>}
+            <div className="flex gap-2 mb-2">
+                <input 
+                    value={linkedinSearchQuery}
+                    onChange={e => setLinkedinSearchQuery(e.target.value)}
+                    placeholder="LinkedIn search query..."
+                    className="flex-1 bg-white/5 border border-white/10 rounded-lg p-2.5 text-white text-sm"
+                />
+                <button onClick={handleLinkedInSearch} className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-lg" disabled={loading}>
+                     {loading ? <Loader2 className="animate-spin" size={20}/> : "Search LinkedIn"}
+                </button>
+            </div>
+            <div className="flex gap-2">
+                <input 
+                    value={apolloSearchQuery}
+                    onChange={e => setApolloSearchQuery(e.target.value)}
+                    placeholder="Apollo.io search query..."
+                    className="flex-1 bg-white/5 border border-white/10 rounded-lg p-2.5 text-white text-sm"
+                />
+                <button onClick={handleApolloSearch} className="bg-orange-600 hover:bg-orange-700 text-white p-2.5 rounded-lg" disabled={loading}>
+                     {loading ? <Loader2 className="animate-spin" size={20}/> : "Search Apollo"}
+                </button>
+            </div>
             <form onSubmit={handleSaveProspect} className="space-y-2">
                 <input name="name" placeholder="Name" defaultValue={editingProspect?.name} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" required />
                 <input name="company" placeholder="Company" defaultValue={editingProspect?.company} className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white" />
@@ -246,7 +324,8 @@ export default function App() {
             <select
                 onChange={(e) => {
                     const p = prospects.find(pr => pr.id === e.target.value);
-                    if(p) { setProspectName(p.name); setProspectCompany(p.company || ''); }
+                    if(p) { setSelectedProspectId(p.id); setProspectName(p.name); setProspectCompany(p.company || ''); }
+                    else { setSelectedProspectId(''); }
                 }}
                 className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-white"
             >
@@ -292,7 +371,7 @@ export default function App() {
             </button>
             <button 
                 onClick={handleGenerateCadence}
-                disabled={loading}
+                disabled={loading || !selectedProspectId}
                 className="flex-1 flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 px-4 rounded-lg disabled:bg-slate-900 transition-colors"
             >
                 {loading ? <Loader2 className="animate-spin mr-2" /> : <Plus className="mr-2" />}
