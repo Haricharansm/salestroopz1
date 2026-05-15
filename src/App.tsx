@@ -448,7 +448,7 @@ export default function App() {
                 ))}
             </div>
         )}
-        <CampaignAnalytics />
+        <CampaignAnalytics campaigns={campaigns} prospects={prospects} />
         </section>
       </main>
     </div>
